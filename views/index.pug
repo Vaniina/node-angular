@@ -1,0 +1,64 @@
+html
+    head
+        title #{title}
+        link(href='./assets/css/styles.css' rel='stylesheet' type='text/css')
+        link(href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css')
+        script(src='./assets/scripts/index.js' type='text/javascript' )
+    body
+        main
+            aside.columnLeft
+                div.block
+                    section.profile
+                        header
+                            img.photo(src='./assets/images/' + image)
+                        article
+                            h1 #{firstName} #{lastName}
+                            footer.age #{age}
+                        h2 #{job}
+
+                    section.about
+                        h2 A propos
+                        p #{about}
+
+                    section.contact
+                        h2 Contact
+                        h4 Téléphone
+                        a(href='tel:' + phone) #{phone}
+
+                        h4 Email
+                        a(href='mailto:' + email) #{email}
+
+                        h4 Adresse
+                        p #{address}
+                        p #{zipcode} #{city}
+
+
+            section.block.main
+
+                section.experiences
+                    h2 Expériences
+
+                    each item in experiences
+                        article
+                            aside
+                                time #{item.date}
+                            section
+                                header #{item.title}
+                                footer #{item.location}
+
+                section.formations
+                    h2 Formations
+
+                    each item in formations
+                        article
+                            aside
+                                time #{item.date}
+                            section
+                                header #{item.title}
+                                footer #{item.location}
+
+                section.labels
+                    h2 Ce que j'aime
+                    ul
+                        each item in hobbies
+                            li #{item}
