@@ -1,11 +1,10 @@
-import path from 'path';
-import express from 'express';
-import admin from 'firebase-admin';
-import bodyParser from 'body-parser';
+import express = require('express');
+import admin = require('firebase-admin');
+import bodyParser = require('body-parser');
+import cors = require('cors');
 import serviceAccount from './serviceAccount';
 import {HostelModel} from './models/hostel.model';
-import {RoomModel} from "./models/room.model";
-
+//import {RoomModel} from "./models/room.model";
 
 admin.initializeApp({
     //@ts-ignore
@@ -18,6 +17,7 @@ const db = admin.firestore();
 const ref = db.collection('hostels');
 
 app.set('view engine', 'pug');
+app.use(cors());
 app.use(bodyParser.json());
 app.use('/assets', express.static('/Users/vincent/Desktop/Anna/node/app/assets'));
 
@@ -74,9 +74,7 @@ app.get('/hostels', async (req, res) => {
         hostels.push(data);
     });
 
-    res.send({
-        data: hostels
-    });
+    res.send(hostels);
 });
 
 app.get('/hostels/generate', async (req, res) => {
@@ -102,28 +100,35 @@ app.get('/hostel/:id', async (req, res) => {
         data.id = request.id;
         res.send(data);
     } else {
-        res.send('not found');
+        res.send({
+            status: 'not found'
+        });
     }
 });
 
 app.post('/hostels', async (req, res) => {
     const newHostel = req.body;
+    const refDoc = await ref.add(newHostel);
+    const request = await ref.doc(refDoc.id).get();
+    const data = request.data();
+    data.id = refDoc.id;
 
-    await ref.add(newHostel);
-    res.send('success');
+    res.send(data);
 });
 
 app.put('/hostel/:id', async (req, res) => {
     await ref.doc(req.params.id).update(req.body);
-    res.send('success');
+    res.send({
+        status: 'success'
+    });
 });
 
 app.delete('/hostels/:id', async (req, res) => {
     await ref.doc(req.params.id).delete();
-    res.send('cancel');
-
+    res.send({
+        status: "success"
+    });
 });
-
 
 app.listen(4000, () => {
     console.log('Example app listening on port 4000!')
