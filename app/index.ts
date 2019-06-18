@@ -4,7 +4,7 @@ import bodyParser = require('body-parser');
 import cors = require('cors');
 import serviceAccount from './serviceAccount';
 import {HostelModel} from './models/hostel.model';
-//import {RoomModel} from "./models/room.model";
+import {RoomModel} from "./models/room.model";
 
 admin.initializeApp({
     //@ts-ignore
@@ -15,6 +15,7 @@ admin.initializeApp({
 const app = express();
 const db = admin.firestore();
 const ref = db.collection('hostels');
+const refRooms = db.collection('rooms');
 
 app.set('view engine', 'pug');
 app.use(cors());
@@ -77,6 +78,19 @@ app.get('/hostels', async (req, res) => {
     res.send(hostels);
 });
 
+app.get('/rooms', async (req, res) => {
+    const rooms: RoomModel[] = [];
+    const roomsRef = await refRooms.get();
+
+    roomsRef.forEach(room => {
+        const data = room.data() as RoomModel;
+        data.id = room.id;
+        rooms.push(data);
+    });
+
+    res.send(rooms);
+});
+
 app.get('/hostels/generate', async (req, res) => {
     const hotelPrefix = ['Hotel', 'Palace', 'Spa'];
     const hotelSuffix = ['Londres', 'Italie', 'Suisse'];
@@ -106,10 +120,47 @@ app.get('/hostel/:id', async (req, res) => {
     }
 });
 
+app.get('/rooms', async (req, res) => {
+    const roomPrefix = ['Suite', 'Chambre', 'Salon'];
+    const roomSuffix = ['Da Vinci', 'Léonardo', 'Eiffel'];
+    const room: RoomModel = {
+        roomName: roomPrefix[Math.floor(Math.random() * roomPrefix.length)] + ' ' + roomSuffix[Math.floor(Math.random() * roomSuffix.length)],
+        size: 0,
+        id: '',
+    };
+
+    await ref.add(room);
+    res.send(room);
+});
+
+app.get('/room/:id', async (req, res) => {
+    const request = await refRooms.doc(req.params.id).get();
+    const data = request.data();
+
+    if (data) {
+        data.id = request.id;
+        res.send(data);
+    } else {
+        res.send({
+            status: 'not found'
+        });
+    }
+});
+
 app.post('/hostels', async (req, res) => {
     const newHostel = req.body;
     const refDoc = await ref.add(newHostel);
     const request = await ref.doc(refDoc.id).get();
+    const data = request.data();
+    data.id = refDoc.id;
+
+    res.send(data);
+});
+
+app.post('/rooms', async (req, res) => {
+    const newRoom = req.body;
+    const refDoc = await refRooms.add(newRoom);
+    const request = await refRooms.doc(refDoc.id).get();
     const data = request.data();
     data.id = refDoc.id;
 
@@ -123,8 +174,22 @@ app.put('/hostel/:id', async (req, res) => {
     });
 });
 
+app.put('/room/:id', async (req, res) => {
+    await refRooms.doc(req.params.id).update(req.body);
+    res.send({
+        status: 'success'
+    });
+});
+
 app.delete('/hostels/:id', async (req, res) => {
     await ref.doc(req.params.id).delete();
+    res.send({
+        status: "success"
+    });
+});
+
+app.delete('/rooms/:id', async (req, res) => {
+    await refRooms.doc(req.params.id).delete();
     res.send({
         status: "success"
     });
