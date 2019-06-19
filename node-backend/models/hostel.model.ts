@@ -1,7 +1,7 @@
 import { RoomModel } from './room.model';
 
 export interface HostelModel {
-    id?: string;
+    uid?: string;
     name: string;
     pool: boolean;
     roomNumbers: number;

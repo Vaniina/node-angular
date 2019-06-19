@@ -6,7 +6,7 @@ import serviceAccount from './serviceAccount';
 import {HostelModel} from './models/hostel.model';
 import {RoomModel} from "./models/room.model";
 import DocumentReference = admin.firestore.DocumentReference;
-import {CollectionReference, DocumentSnapshot} from '@google-cloud/firestore';
+import {CollectionReference, DocumentSnapshot, Query, QuerySnapshot, WriteResult} from '@google-cloud/firestore';
 
 admin.initializeApp({
     //@ts-ignore
@@ -73,7 +73,6 @@ app.get('/hostels', async (req, res) => {
 
     hostelsRef.forEach(hostel => {
         const data = hostel.data() as HostelModel;
-        data.id = hostel.id;
         hostels.push(data);
     });
 
@@ -86,67 +85,26 @@ app.get('/rooms', async (req, res) => {
 
     roomsRef.forEach(room => {
         const data = room.data() as RoomModel;
-        data.id = room.id;
         rooms.push(data);
     });
 
     res.send(rooms);
 });
 
-app.get('/hostels/generate', async (req, res) => {
-    const hotelPrefix = ['Hotel', 'Palace', 'Spa'];
-    const hotelSuffix = ['Londres', 'Italie', 'Suisse'];
-    const hostel: HostelModel = {
-        name: hotelPrefix[Math.floor(Math.random() * hotelPrefix.length)] + ' ' + hotelSuffix[Math.floor(Math.random() * hotelSuffix.length)],
-        roomNumbers: 0,
-        pool: Math.random() < 0.5,
-        rooms: []
-    };
-
-    await ref.add(hostel);
-    res.send(hostel);
-
-});
-
 app.get('/hostel/:id', async (req, res) => {
-    const request = await ref.doc(req.params.id).get();
-    const data = request.data();
+    const hostel: DocumentSnapshot = await ref.doc(req.params.id).get();
 
-    if (data) {
-        data.id = request.id;
-        res.send(data);
-    } else {
-        res.send({
-            status: 'not found'
-        });
-    }
+    res.send(hostel.data());
+
 });
 
-app.get('/rooms', async (req, res) => {
-    const roomPrefix = ['Suite', 'Chambre', 'Salon'];
-    const roomSuffix = ['Da Vinci', 'Léonardo', 'Eiffel'];
-    const room: RoomModel = {
-        roomName: roomPrefix[Math.floor(Math.random() * roomPrefix.length)] + ' ' + roomSuffix[Math.floor(Math.random() * roomSuffix.length)],
-        size: 0,
-        id: '',
-    };
+app.get('/hostels/:id/rooms', async (req, res) => {
+    const reqRooms: Query = refRooms.where('parent', '==', req.params.id);
+    const roomsRef: QuerySnapshot = await reqRooms.get();
+    const rooms: RoomModel[] = [];
+    roomsRef.forEach(room => rooms.push(room.data() as RoomModel));
 
-    await ref.add(room);
-    res.send(room);
-});
-
-app.get('/room/:id', async (req, res) => {
-    const request = await refRooms.doc(req.params.id).get();
-    const data = request.data();
-
-    if (data) {
-        data.id = request.id;
-        res.send(data);
-    } else {
-        res.send({
-            status: 'not found'
-        });
-    }
+    res.send(rooms);
 });
 
 app.post('/hostels', async (req, res) => {
@@ -160,12 +118,11 @@ app.post('/hostels', async (req, res) => {
 });
 
 app.post('/rooms', async (req, res) => {
-    const room : RoomModel = req.body;
-    const refRoom : CollectionReference = db.collection('rooms');
-    const createdRoom : DocumentReference = await refRoom.add(room);
-    const fullRoom : DocumentReference = db.collection('rooms').doc(createdRoom.id);
-    await fullRoom.update({uid:createdRoom.id});
-    const fullRoomData : DocumentSnapshot = await fullRoom.get();
+    const room: RoomModel = req.body;
+    const createdRoom: DocumentReference = await refRooms.add(room);
+    const fullRoom: DocumentReference = refRooms.doc(createdRoom.id);
+    await fullRoom.update({uid: createdRoom.id});
+    const fullRoomData: DocumentSnapshot = await fullRoom.get();
 
     res.send(fullRoomData.data());
 
@@ -194,6 +151,7 @@ app.delete('/hostels/:id', async (req, res) => {
 
 app.delete('/rooms/:id', async (req, res) => {
     await refRooms.doc(req.params.id).delete();
+
     res.send({
         status: "success"
     });

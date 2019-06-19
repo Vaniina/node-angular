@@ -8,14 +8,12 @@
     "sourceMap": true,
     "watch" : true,
     "typeRoots": ["node", "express"],
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "lib": [
+      "es2015"
+    ]
   },
-  "include":[
-    "**/*"
-  ],
   "exclude": [
-    "node_modules",
-    "front",
-    "**/*.spec.ts"
+    "node_modules"
   ]
 }

@@ -1,4 +1,4 @@
 dist/
 node_modules/
 .idea/
-app/serviceAccount.ts
+serviceAccount.ts
