@@ -5,6 +5,8 @@ import cors = require('cors');
 import serviceAccount from './serviceAccount';
 import {HostelModel} from './models/hostel.model';
 import {RoomModel} from "./models/room.model";
+import DocumentReference = admin.firestore.DocumentReference;
+import {CollectionReference, DocumentSnapshot} from '@google-cloud/firestore';
 
 admin.initializeApp({
     //@ts-ignore
@@ -158,13 +160,15 @@ app.post('/hostels', async (req, res) => {
 });
 
 app.post('/rooms', async (req, res) => {
-    const newRoom = req.body;
-    const refDoc = await refRooms.add(newRoom);
-    const request = await refRooms.doc(refDoc.id).get();
-    const data = request.data();
-    data.id = refDoc.id;
+    const room : RoomModel = req.body;
+    const refRoom : CollectionReference = db.collection('rooms');
+    const createdRoom : DocumentReference = await refRoom.add(room);
+    const fullRoom : DocumentReference = db.collection('rooms').doc(createdRoom.id);
+    await fullRoom.update({uid:createdRoom.id});
+    const fullRoomData : DocumentSnapshot = await fullRoom.get();
 
-    res.send(data);
+    res.send(fullRoomData.data());
+
 });
 
 app.put('/hostel/:id', async (req, res) => {
