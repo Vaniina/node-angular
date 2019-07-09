@@ -1,0 +1,24 @@
+<div *ngIf="hostelForm && hostelForm.invalid && (hostelForm.dirty || hostelForm.touched) ">Attention il y a une erreur</div>
+
+  <form class="container"
+        [formGroup]="hostelForm"
+        (ngSubmit)="create()">
+
+    <label>
+      Nom: <input type="text" formControlName="name" required>
+    </label>
+    <label>
+      Nombre de chambre: <input type="number" formControlName="roomNumbers" required>
+    </label>
+    <label>
+      Piscine ? <input type="checkbox" formControlName="pool" required>
+    </label>
+
+    <button type="submit">Créer</button>
+    <button (click)="hostelForm.reset()" type="button">Réinitialiser</button>
+  </form>
+
+<br />
+<br />
+<a routerLink="/">Retour à la liste des hôtels</a>
+

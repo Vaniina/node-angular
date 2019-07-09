@@ -1,0 +1,47 @@
+<img src="https://loading.io/spinners/camera/index.camera-aperture-ajax-spinner.svg" *ngIf="loading"/>
+
+<div *ngIf="hostel">
+  <div *ngIf="!hostelForm">
+    <h1>{{hostel.name}}</h1>
+    Nombre de chambres: {{hostel.roomNumbers}}
+    <br/>
+    Piscine ? {{hostel.pool ? 'oui' : 'non'}}
+
+    <footer>
+      <button (click)="deleteHostel()">Supprimer</button>
+      <button (click)="openHostelEdition()">Modifier</button>
+    </footer>
+  </div>
+
+  <ul>
+    <li *ngFor="let room of hostel.rooms;">
+      {{room.roomName}} - {{room.size}}
+    </li>
+  </ul>
+
+  <div *ngIf="hostelForm && hostelForm.invalid && (hostelForm.dirty || hostelForm.touched)">Attention il y a une erreur</div>
+
+  <form class="container"
+        *ngIf="hostelForm"
+        [formGroup]="hostelForm"
+        (ngSubmit)="update()">
+
+    <label>
+      Nom: <input type="text" formControlName="name" required>
+    </label>
+    <label>
+      Nombre de chambre: <input type="number" formControlName="roomNumbers" required>
+    </label>
+    <label>
+      Piscine ? <input type="checkbox" formControlName="pool" required>
+    </label>
+
+    <button type="submit">Enregistrer</button>
+    <button (click)="cancelEdition()">Annuler</button>
+  </form>
+</div>
+
+<br />
+<br />
+<a routerLink="/">Retour à la liste des hôtels</a>
+

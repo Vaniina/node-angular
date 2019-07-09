@@ -1,0 +1,19 @@
+
+<ul>
+  <li *ngFor="let room of rooms; let i = index">
+    <a routerLink="/room/{{room.uid}}">
+      <header>
+        <img src="https://picsum.photos/200/150?r={{i}}" />
+      </header>
+      <footer>
+        <h3>{{room.roomName}}</h3>
+        <h4>{{room.size}}</h4>
+      </footer>
+    </a>
+  </li>
+</ul>
+
+<div class="add">
+  <a routerLink="/room-create">Ajouter une chambre</a>
+</div>
+

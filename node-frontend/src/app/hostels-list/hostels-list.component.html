@@ -1,0 +1,21 @@
+<h2>Liste des hôtels :</h2>
+
+<div *ngIf="loading">Chargement...</div>
+
+<ul>
+  <li *ngFor="let hostel of hostels; let i = index">
+    <a routerLink="/hostel/{{hostel.uid}}">
+      <header>
+        <img src="https://picsum.photos/200/150?r={{i}}" />
+      </header>
+      <footer>
+        <h3>{{hostel.name}}</h3>
+        <h4>{{hostel.roomNumbers}} chambres</h4>
+      </footer>
+    </a>
+  </li>
+</ul>
+
+<div class="add">
+<a routerLink="create">Ajouter un hôtel</a>
+</div>

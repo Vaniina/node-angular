@@ -1,0 +1,36 @@
+<form class="container"
+      [formGroup]="roomForm"
+      (ngSubmit)="create()">
+
+  <br/>
+  <label>
+    Nom de la chambre: <input type="text" formControlName="roomName" required>
+  </label>
+  <br/>
+  <label>
+    Taille de la chambre: <input type="number" formControlName="size" required>
+  </label>
+  <br/>
+  <label>
+    Hôtel:
+    <select formControlName="parent">
+      <option *ngFor="let hostel of hostels;" [value]="hostel.uid">{{hostel.name}}</option>
+    </select>
+  </label>
+
+  <br/>
+  <br/>
+
+  <button type="submit">Créer</button>
+  <button (click)="roomForm.reset()" type="button">Réinitialiser</button>
+</form>
+
+<ul *ngIf="hostel">
+  <li *ngFor="let room of hostel.rooms;">
+    {{room.roomName}} - {{room.size}}
+  </li>
+</ul>
+
+<br />
+<br />
+<a routerLink="/rooms-list">Retour à la liste des chambres</a>
