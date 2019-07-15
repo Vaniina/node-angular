@@ -9,12 +9,15 @@ import {ReactiveFormsModule} from "@angular/forms";
 import {AngularFireModule} from "@angular/fire";
 import {environment} from "../environments/environment";
 import {AngularFirestoreModule} from "@angular/fire/firestore";
+import {AngularFireAuthModule} from "@angular/fire/auth";
+import {AuthenticationComponent} from "./authentication/authentication.component";
 
 @NgModule({
   declarations: [
     AppComponent,
     FooterComponent,
     HeaderComponent,
+    AuthenticationComponent,
   ],
   imports: [
     ReactiveFormsModule,
@@ -23,6 +26,7 @@ import {AngularFirestoreModule} from "@angular/fire/firestore";
     HttpClientModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFirestoreModule,
+    AngularFireAuthModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

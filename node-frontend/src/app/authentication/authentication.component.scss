@@ -1,0 +1,31 @@
+header {
+  padding: 10px;
+  border-bottom: 1px solid #EEE;
+  background-color: #fafafa;
+  margin-bottom: 10px;
+}
+
+input[type="email"],
+input[type="password"] {
+  padding: 5px 10px;
+  margin-right: 10px;
+  border-radius: 5px;
+  border: 1px solid #DDD;
+  font-size: 14px;
+}
+
+button {
+  border: none;
+  background-color: transparent;
+  color: #888;
+}
+
+button[type="submit"] {
+  margin-right: 10px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: 1px solid #CCC;
+  font-size: 14px;
+  background-color: #eee;
+  color: #888;
+}

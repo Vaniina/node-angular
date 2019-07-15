@@ -1,0 +1,25 @@
+<header>
+  <form class="container"
+        [formGroup]="authForm"
+        (ngSubmit)="connect()"
+        *ngIf="view === 'login'">
+
+    <input type="email" placeholder="Email" formControlName="email" required>
+    <input type="password" placeholder="********" formControlName="password" required>
+
+    <button type="submit">Se connecter</button>
+    <button (click)="setView('reset')" type="button">Mot de passe oublié ?</button>
+  </form>
+
+  <form class="container"
+      [formGroup]="resetForm"
+      (ngSubmit)="reset()"
+        *ngIf="view === 'reset'">
+
+    <input type="email" placeholder="votre@email.com" formControlName="email" required>
+    <button type="submit">Réinitialiser</button>
+    <button (click)="setView('login')" type="button">Annuler</button>
+  </form>
+
+  <button *ngIf="view === 'logout'" (click)="disconnect()">Se déconnecter</button>
+</header>
