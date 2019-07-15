@@ -3,40 +3,44 @@ import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {combineLatest, Observable} from "rxjs";
 import {HostelModel} from "../../../../node-backend/models/hostel.model";
 import {Router} from "@angular/router";
-import {AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument} from "@angular/fire/firestore";
 import {RoomModel} from "../../../../node-backend/models/room.model";
+import {HttpClient} from "@angular/common/http";
+import {tap} from "rxjs/operators";
 
 @Injectable({
   providedIn: 'root'
 })
 export class HostelService {
   hostelForm: FormGroup;
-  private hostelDoc: AngularFirestoreDocument<HostelModel>;
-  private roomsCollection: AngularFirestoreCollection<RoomModel>;
   hostel: Observable<HostelModel>;
+  hostelData: HostelModel;
 
   constructor(
-    private afs: AngularFirestore,
     private router: Router,
     private fb: FormBuilder,
+    private httpClient: HttpClient
   ) {
   }
 
   getHostels() {
-    return this.afs.collection<HostelModel>('hostels').valueChanges();
+    return this.httpClient.get<HostelModel[]>('http://localhost:4000/hostels');
   }
 
   getHostelById$(id: string) {
-    this.hostelDoc = this.afs.doc<HostelModel>('hostels/' + id);
-    this.roomsCollection = this.afs.collection<RoomModel>('rooms', ref => {
-      return ref.where('parent', '==', id);
-    });
+    this.hostel = this.httpClient.get<HostelModel>('http://localhost:4000/hostel/' + id);
+    const rooms = this.httpClient.get<RoomModel>('http://localhost:4000/hostels/' + id + '/rooms');
 
-    this.hostel = this.hostelDoc.valueChanges();
+    this.hostel
+      .pipe(
+        tap((hostel: HostelModel) => {
+          this.hostelData = hostel;
+        })
+      )
+      .subscribe();
 
     return combineLatest(
       this.hostel,
-      this.roomsCollection.valueChanges()
+      rooms
     );
   }
 
@@ -49,16 +53,16 @@ export class HostelService {
   }
 
   async deleteHostel$() {
-    await this.hostelDoc.delete();
+    this.httpClient.delete<HostelModel>('http://localhost:4000/hostels/'+ this.hostelData.uid);
     this.router.navigateByUrl('/');
   }
 
   updateHostel$() {
-    this.hostelDoc.update(this.hostelForm.value);
+    this.httpClient.put<HostelModel>('http://localhost:4000/hostel/' + this.hostelData.uid, this.hostelForm.value);
   }
 
   async createHostel$() {
-    await this.afs.collection('hostels').add(this.hostelForm.value);
+    this.httpClient.post<HostelModel>('http://localhost:4000/hostels', this.hostelForm.value);
     this.router.navigateByUrl('hostel/' + this.hostelForm.value.parent);
   }
 }

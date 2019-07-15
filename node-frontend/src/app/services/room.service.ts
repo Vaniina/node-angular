@@ -3,7 +3,7 @@ import {RoomModel} from "../../../../node-backend/models/room.model";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {tap} from "rxjs/operators";
 import {Router} from "@angular/router";
-import {AngularFirestore, AngularFirestoreDocument} from "@angular/fire/firestore";
+import {HttpClient} from "@angular/common/http";
 
 @Injectable({
   providedIn: 'root'
@@ -11,27 +11,26 @@ import {AngularFirestore, AngularFirestoreDocument} from "@angular/fire/firestor
 export class RoomService {
   room: RoomModel;
   roomForm: FormGroup;
-  private roomDoc: AngularFirestoreDocument<RoomModel>;
-
 
   constructor(
-    private afs: AngularFirestore,
     private router: Router,
     private fb: FormBuilder,
+    private httpClient: HttpClient,
   ) {
   }
 
   getRooms() {
-    return this.afs.collection<RoomModel>('rooms').valueChanges();
+    return this.httpClient.get<RoomModel>('http://localhost:4000/rooms');
   }
 
   getRoomById$(id: string) {
-    this.roomDoc = this.afs.doc<RoomModel>('rooms/' + id);
-
-    return this.roomDoc.valueChanges().pipe(
-      tap((room: RoomModel) => {
-        this.room = room;
-      }));
+    return this.httpClient
+      .get<RoomModel>('http://localhost:4000/rooms/'+ id)
+      .pipe(
+        tap((room: RoomModel) => {
+          this.room = room;
+        })
+      );
   }
 
   roomEdition$(room: RoomModel) {
@@ -43,16 +42,16 @@ export class RoomService {
   }
 
   async deleteRoom$() {
-    await this.roomDoc.delete();
+    await this.httpClient.delete('http://localhost:4000/rooms/'+ this.room.uid);
     this.router.navigateByUrl('room/');
   }
 
   async updateRoom$() {
-    await this.roomDoc.update(this.roomForm.value);
+    await this.httpClient.put('http://localhost:4000/room/' + this.room.uid, this.roomForm.value);
   }
 
   async createRoom$() {
-    await this.afs.collection('rooms').add(this.roomForm.value);
+    this.httpClient.post('http://localhost:4000/rooms/', this.roomForm.value);
   }
 }
 
